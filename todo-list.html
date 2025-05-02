@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Advanced ToDo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f8ff;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+    }
+    input[type="text"] {
+      width: 65%;
+      padding: 8px;
+    }
+    select, button {
+      padding: 8px;
+      margin-top: 5px;
+    }
+    .section {
+      margin-top: 20px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #fff;
+      margin: 6px 0;
+      padding: 8px;
+      border-radius: 5px;
+      box-shadow: 0 0 3px #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .category {
+      font-weight: bold;
+      margin-top: 15px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .btn-del {
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 5px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .btn-mark {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 5px 8px;
+      border-radius: 3px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📝 Rani's ToDo List</h2>
+
+  <input type="text" id="todoInput" placeholder="Enter a task" />
+  <select id="category">
+    <option value="Pending">Pending</option>
+    <option value="To Review">To Review</option>
+    <option value="Completed">Completed</option>
+  </select>
+  <button onclick="addTodo()">Add</button>
+
+  <div class="section">
+    <div class="category">🕒 Pending</div>
+    <ul id="pendingList"></ul>
+
+    <div class="category">🧐 To Review</div>
+    <ul id="reviewList"></ul>
+
+    <div class="category">✅ Completed</div>
+    <ul id="completedList"></ul>
+  </div>
+
+  <script>
+    let todos = JSON.parse(localStorage.getItem("todos") || "[]");
+
+    function saveTodos() {
+      localStorage.setItem("todos", JSON.stringify(todos));
+    }
+
+    function addTodo() {
+      const input = document.getElementById("todoInput");
+      const cat = document.getElementById("category").value;
+      const text = input.value.trim();
+      if (text) {
+        todos.push({ text, category: cat });
+        input.value = "";
+        saveTodos();
+        displayTodos();
+      }
+    }
+
+    function markAsCompleted(index) {
+      todos[index].category = "Completed";
+      saveTodos();
+      displayTodos();
+    }
+
+    function deleteTodo(index) {
+      todos.splice(index, 1);
+      saveTodos();
+      displayTodos();
+    }
+
+    function displayTodos() {
+      const pendingList = document.getElementById("pendingList");
+      const reviewList = document.getElementById("reviewList");
+      const completedList = document.getElementById("completedList");
+
+      pendingList.innerHTML = "";
+      reviewList.innerHTML = "";
+      completedList.innerHTML = "";
+
+      todos.forEach((todo, index) => {
+        const li = document.createElement("li");
+        li.textContent = todo.text;
+
+        const actions = document.createElement("div");
+
+        if (todo.category !== "Completed") {
+          const markBtn = document.createElement("button");
+          markBtn.className = "btn-mark";
+          markBtn.textContent = "✅ Done";
+          markBtn.onclick = () => markAsCompleted(index);
+          actions.appendChild(markBtn);
+        }
+
+        if (todo.category === "Completed") {
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn-del";
+          delBtn.textContent = "🗑 Delete";
+          delBtn.onclick = () => deleteTodo(index);
+          actions.appendChild(delBtn);
+        }
+
+        li.appendChild(actions);
+
+        if (todo.category === "Pending") {
+          pendingList.appendChild(li);
+        } else if (todo.category === "To Review") {
+          reviewList.appendChild(li);
+        } else if (todo.category === "Completed") {
+          completedList.appendChild(li);
+        }
+      });
+    }
+
+    displayTodos();
+  </script>
+
+</body>
+</html>
